@@ -1,0 +1,26 @@
+{
+	"name": "vrana/notorm-demo",
+	"description": "Demo of NotORM showing the NotORM code, SQL and time of every query",
+	"type": "project",
+	"homepage": "https://demo.notorm.com/",
+	"license": ["Apache-2.0", "GPL-2.0-or-later"],
+	"authors": [
+		{
+			"name": "Jakub Vrána",
+			"homepage": "https://www.vrana.cz/"
+		}
+	],
+	"require": {
+		"php": ">=8.0",
+		"ext-pdo": "*",
+		"vrana/notorm": "^2.0",
+		"vrana/jush": "^3.2"
+	},
+	"config": {
+		"lock": false
+	},
+	"scripts": {
+		"post-install-cmd": "@php build-jush.php",
+		"post-update-cmd": "@php build-jush.php"
+	}
+}
