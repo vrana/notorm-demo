@@ -22,6 +22,8 @@ composer install
 cp config.example.php config.php
 ```
 
+The web server writes the `File` and `IncludeFile` caches to `var/`, and an SQLite database is there too. Only the web account may write to `var/`: the caches are unserialized and included, so a shared directory such as `/tmp` would let other local users run code as the web server.
+
 Fill in the databases in `config.php`: `databases` maps a name to the DSN, username and password. Visitors switch between them in the top right corner, the first one is the default. Then create the tables and the rows in each of them, here with an account that may create tables:
 
 ```bash
