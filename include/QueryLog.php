@@ -202,8 +202,12 @@ class QueryLog {
 	* @param mixed[] $parameters
 	*/
 	private function formatQuery(string $query, array $parameters): string {
+		$strings = (sql_language($this->pdo) == "sql"
+			? '\'[^\'\\\\]*+(?:\\\\.[^\'\\\\]*+)*+\'|"[^"\\\\]*+(?:\\\\.[^"\\\\]*+)*+"' // MySQL escapes the quotes by a backslash; runs of other characters at once, a group per character overflows PCRE's stack in long values
+			: '\'[^\']*\'|"[^"]*"' // the others double them, which reads as two strings, and a backslash is an ordinary character
+		);
 		$query = preg_replace_callback(
-			'~\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*"|`[^`]*`|\s+(FROM|LEFT JOIN|WHERE|GROUP BY|HAVING|ORDER BY|LIMIT|UNION|VALUES|SET)\b~',
+			"~$strings|`[^`]*`|\\s+(FROM|LEFT JOIN|WHERE|GROUP BY|HAVING|ORDER BY|LIMIT|UNION|VALUES|SET)\\b~",
 			fn($match) => (isset($match[1]) ? "\n$match[1]" : $match[0]),
 			$query
 		);
