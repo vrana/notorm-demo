@@ -11,11 +11,15 @@ CREATE TABLE author (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE INDEX author_name ON author (name);
+
 CREATE TABLE tag (
   id int NOT NULL AUTO_INCREMENT,
   name varchar(20) NOT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX tag_name ON tag (name);
 
 CREATE TABLE application (
   id int NOT NULL AUTO_INCREMENT,
@@ -47,6 +51,8 @@ CREATE TABLE category (
   PRIMARY KEY (id),
   CONSTRAINT category_parent FOREIGN KEY (parent_id) REFERENCES category (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX category_name ON category (name);
 
 CREATE TABLE setting (
   site_name varchar(50) NOT NULL,

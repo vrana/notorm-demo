@@ -24,11 +24,15 @@ CREATE TABLE author (
   PRIMARY KEY (id)
 );
 
+CREATE INDEX author_name ON author (name);
+
 CREATE TABLE tag (
   id INTEGER NOT NULL,
   name varchar(20) NOT NULL,
   PRIMARY KEY (id)
 );
+
+CREATE INDEX tag_name ON tag (name);
 
 CREATE TABLE application (
   id INTEGER NOT NULL,
@@ -60,6 +64,8 @@ CREATE TABLE category (
   PRIMARY KEY (id),
   CONSTRAINT category_parent FOREIGN KEY (parent_id) REFERENCES category (id)
 );
+
+CREATE INDEX category_name ON category (name);
 
 CREATE TABLE setting (
   site_name varchar(50) NOT NULL,
