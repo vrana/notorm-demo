@@ -78,7 +78,3 @@ The forms send what the visitor typed and the database validates it, so the serv
 Set `"read_write" => false` for a public demo. The writes are then rolled back, but MySQL doesn't roll back AUTO_INCREMENT counters and the other databases their sequences and identities (except SQLite), so the ids of the inserted rows keep growing there.
 
 The cache remembers the used columns and the foreign keys read from the database. Visitors switch it in the top right corner between the `NotORM\Cache` classes listed in `caches` in `config.php` with their constructor arguments (or a function returning them, called with the PDO connection only for the chosen cache), `""` for off, the first one is the default: `APCu` (shared, needs the extension), `File` (shared), `Session` (every visitor starts empty, so the first visit of a page shows `SELECT *` and a reload only the used columns), `IncludeFile`, `Database` (the `notorm` table, its queries aren't logged) and off (always `SELECT *`, and the foreign keys are read on every request, outside the query log).
-
-## License
-
-Apache License 2.0 or GPL 2 or later, the same as NotORM.
