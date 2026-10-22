@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-// Recreates the tables in a database from config.php: php setup.php [name [username password]]
+// Recreates the tables in a database from config.php: php setup.php [name [username]]
 // The first database by default. Needs an account with CREATE and DROP, which the web account should not have.
+// The password of the username is read from the input, other users see the arguments in the list of processes.
 
 if (PHP_SAPI != "cli") {
 	exit("Run from the command line.\n");
@@ -9,7 +10,12 @@ if (PHP_SAPI != "cli") {
 require __DIR__ . "/vendor/autoload.php";
 $config = require __DIR__ . "/config.php";
 [$dsn, $username, $password] = $config["databases"][$argv[1] ?? array_key_first($config["databases"])];
-$pdo = new PDO($dsn, $argv[2] ?? $username, $argv[3] ?? $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+if (isset($argv[2])) {
+	$username = $argv[2];
+	echo "Password of $username: ";
+	$password = rtrim((string) fgets(STDIN), "\r\n");
+}
+$pdo = new PDO($dsn, $username, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 $identities = ["author", "tag", "application", "category"]; // the tables with an identity column and explicit ids in data.sql
 

@@ -27,7 +27,7 @@ The web server writes the `File` and `IncludeFile` caches to `var/`, and an SQLi
 Fill in the databases in `config.php`: `databases` maps a name to the DSN, username and password. Visitors switch between them in the top right corner, the first one is the default. Then create the tables and the rows in each of them, here with an account that may create tables:
 
 ```bash
-php setup.php MySQL root password
+php setup.php MySQL root
 ```
 
 `setup.php` takes the tables from `sql/mysql.sql`, `sql/pgsql.sql`, `sql/sqlite.sql`, `sql/sqlsrv.sql` or `sql/oci.sql` by the PDO driver and the rows from `sql/data.sql`, the same in all databases.
