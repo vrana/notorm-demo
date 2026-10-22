@@ -41,7 +41,9 @@ if ($author) {
 <ul>
 <?php foreach ($author->application()->via("author_id")->order("title") as $application) { ?>
 	<li><?=a("application.php?id=$application[id]", $application["title"])?>
-		<?php if ($application["maintainer_id"] != $author["id"] && $application->maintainer) { ?><small>maintained by <?=a("author.php?id=$application[maintainer_id]", $application->maintainer["name"])?></small><?php } ?>
+		<?php if ($application["maintainer_id"] != $author["id"] && $application->maintainer) { ?>
+			<small>maintained by <?=a("author.php?id=$application[maintainer_id]", $application->maintainer["name"])?></small>
+		<?php } ?>
 <?php } ?>
 </ul>
 

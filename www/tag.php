@@ -18,12 +18,13 @@ if ($_POST) {
 }
 
 page_header($tag["name"], $notice);
+$application_tags = $tag->application_tag()->select("application.id, application.title, application.slogan");
 ?>
 <h2>Applications</h2>
 <ul>
-<?php foreach ($tag->application_tag() as $application_tag) { ?>
-	<li><?=a("application.php?id=$application_tag[application_id]", $application_tag->application["title"])?>
-		<small><?=h($application_tag->application["slogan"])?></small>
+<?php foreach ($application_tags->order("application.title") as $application_tag) { ?>
+	<li><?=a("application.php?id=$application_tag[id]", $application_tag["title"])?>
+		<small><?=h($application_tag["slogan"])?></small>
 <?php } ?>
 </ul>
 

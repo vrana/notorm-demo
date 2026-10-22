@@ -49,9 +49,9 @@ if ($application) {
 	<dt>Web<dd><?=($application["web"] ? a($application["web"], $application["web"]) : "")?>
 	<dt>Author<dd><?=a("author.php?id=$application[author_id]", $application->author["name"])?>
 	<dt>Maintainer<dd><?=($application->maintainer ? a("author.php?id=$application[maintainer_id]", $application->maintainer["name"]) : "")?>
-	<dt>Tags<dd><?php foreach ($application->application_tag() as $application_tag) { ?>
-		<?php $tags[$application_tag["tag_id"]] = true; // for the form ?>
-		<a class="tag" href="tag.php?id=<?=$application_tag["tag_id"]?>"><?=h($application_tag->tag["name"])?></a>
+	<dt>Tags<dd><?php foreach ($application->application_tag()->select("tag.*")->order("tag.name") as $application_tag) { ?>
+		<?php $tags[$application_tag["id"]] = true; // for the form ?>
+		<a class="tag" href="tag.php?id=<?=$application_tag["id"]?>"><?=h($application_tag["name"])?></a>
 	<?php } ?>
 </dl>
 
@@ -69,8 +69,8 @@ $checked = ($_POST ? array_flip($_POST["tags"] ?? []) : $tags);
 	<input id="web" name="web" type="url" value="<?=h($form["web"] ?? "")?>" maxlength="100">
 	<label for="author_id">Author</label>
 	<select id="author_id" name="author_id" required><?=($application ? "" : "<option value=''></option>")?>
-  <?=options($authors, "name", $form["author_id"] ?? "")?>
-  </select>
+		<?=options($authors, "name", $form["author_id"] ?? "")?>
+	</select>
 	<label for="maintainer_id">Maintainer</label>
 	<select id="maintainer_id" name="maintainer_id"><option value=""></option><?=options($authors, "name", $form["maintainer_id"] ?? "")?></select>
 	<span>Tags</span>
