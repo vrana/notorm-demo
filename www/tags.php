@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
 require __DIR__ . "/../include/bootstrap.inc.php";
 
-$notice = "";
 if ($_POST) {
 	$notice = demo_write($db, $log, function () use ($db) {
 		$tag = $db->tag()->insert(["name" => $_POST["name"]]);
-		return "Inserted tag $tag[id]";
+		return ["Inserted tag $tag[id]", "tag.php?id=$tag[id]"];
 	});
 }
 

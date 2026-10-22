@@ -29,13 +29,14 @@ if (isset($_POST["cache"])) {
 	exit;
 }
 
-/** @var array{databases: non-empty-array<string, array{string, string, string}>, caches:non-empty-array<class-string<NotORM\Cache>|'', list<mixed>|Closure(PDO): list<mixed>>, source: string} $config */
+/** @var array{databases: non-empty-array<string, array{string, string, string}>, read_write: bool, caches:non-empty-array<class-string<NotORM\Cache>|'', list<mixed>|Closure(PDO): list<mixed>>, source: string} $config */
 $config = require __DIR__ . "/../config.php";
 $caches = []; // short class name => [class, constructor arguments], "" is off
 foreach ($config["caches"] as $class => $arguments) {
 	$caches[substr((string) strrchr($class, "\\"), 1)] = [$class, $arguments]; // (string) - strrchr() returns false for ""
 }
 define("CACHES", array_keys($caches)); // read by cache_choice() and the switch in page_header()
+define("READ_WRITE", $config["read_write"]); // read by demo_write()
 define("DATABASES", array_keys($config["databases"])); // read by db_choice() and the switch in page_header()
 [$dsn, $username, $password] = $config["databases"][db_choice()];
 $pdo = new PDO($dsn, $username, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_CASE => PDO::CASE_LOWER]); // CASE_LOWER - Oracle returns the column names in upper case
@@ -47,7 +48,7 @@ if ($arguments instanceof Closure) {
 	$arguments = $arguments($pdo); // only for the chosen cache, e.g. a connection to Memcached
 }
 $cache = ($class == "" ? null : new CacheByDatabase(new $class(...$arguments), db_choice()));
-if ($cache?->cache instanceof NotORM\Cache\Session) {
+if ($cache?->cache instanceof NotORM\Cache\Session || isset($_COOKIE[session_name()])) { // the cache or a notice from demo_write()
 	session_start();
 }
 
@@ -56,4 +57,10 @@ $db = new NotORM\NotORM($pdo, $structure, $cache);
 
 $log = new QueryLog($pdo, $config["source"]);
 $log->attach($db);
+$notice = ""; // HTML of the result of a write, the pages pass it to page_header()
+if (isset($_SESSION["notice"])) { // demo_write() committed and redirected here
+	[$notice, $entries] = $_SESSION["notice"];
+	unset($_SESSION["notice"]);
+	$log->import($entries);
+}
 ob_start(); // page_footer() puts markers where the queries ran into the page

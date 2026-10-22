@@ -6,15 +6,14 @@ if (!$tag) {
 	not_found($log, $cache);
 }
 
-$notice = "";
 if ($_POST) {
 	$notice = demo_write($db, $log, function () use ($tag) {
 		if (isset($_POST["delete"])) {
 			$deleted = $tag->delete(); // fails if an application has this tag
-			return "Deleted " . plural($deleted, "tag");
+			return ["Deleted " . plural($deleted, "tag"), "tags.php"];
 		}
 		$updated = $tag->update(["name" => $_POST["name"]]); // the row keeps its values, the page shows them after the rollback
-		return "Updated " . plural($updated, "tag");
+		return ["Updated " . plural($updated, "tag"), "tag.php?id=$tag[id]"];
 	});
 }
 

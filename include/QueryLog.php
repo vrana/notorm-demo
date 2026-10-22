@@ -45,6 +45,23 @@ class QueryLog {
 		return count($this->entries);
 	}
 
+	/** The queries since $from, to show them after a redirect
+	* @return list<array{query: string, parameters: mixed[], file: string, line: int, offset: int, time: float}>
+	*/
+	function export(int $from): array {
+		return array_slice($this->entries, $from);
+	}
+
+	/** Show the queries of the previous request before the notice
+	* @param list<array{query: string, parameters: mixed[], file: string, line: int, offset: int, time: float}> $entries from export()
+	*/
+	function import(array $entries): void {
+		foreach ($entries as $entry) {
+			$this->notice[count($this->entries)] = true;
+			$this->entries[] = ["offset" => 0] + $entry; // offset - before anything of this page
+		}
+	}
+
 	/** The queries since $from are reported by the notice, e.g. the writes */
 	function notice(int $from): void {
 		for ($i = $from; $i < count($this->entries); $i++) {

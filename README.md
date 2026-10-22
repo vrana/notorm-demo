@@ -6,7 +6,7 @@ The source of [demo.notorm.com](https://demo.notorm.com/), a small site built wi
 - **Application, author, tag**: the detail with the referencing rows (`via()` for the second foreign key to the same table), and forms to insert, update and delete.
 - **Categories**: a tree from a self-referencing table, one query per level.
 
-The demo is read-only. A write runs for real in a transaction, so its queries and their time are real, and is then rolled back.
+The forms insert, update and delete in a transaction. With `"read_write" => true` in `config.php` (the default), it is committed and the browser goes to the result, which shows the notice and the queries of the write. With `false` it is rolled back, so the queries and their time are real but the data stay; demo.notorm.com runs so.
 
 ## Running it
 
@@ -68,7 +68,7 @@ NotORM can't read the id of an inserted row in Oracle, PDO_OCI doesn't implement
 
 The forms send what the visitor typed and the database validates it, so the server needs `STRICT_TRANS_TABLES` in `sql_mode` (the default since MySQL 5.7 and MariaDB 10.2.4); without it, too long values would be cut silently. PostgreSQL, MS SQL and Oracle check the lengths too, SQLite doesn't.
 
-Writes are rolled back, but MySQL doesn't roll back AUTO_INCREMENT counters and the other databases their sequences and identities (except SQLite), so the ids of the inserted rows keep growing there.
+Set `"read_write" => false` for a public demo. The writes are then rolled back, but MySQL doesn't roll back AUTO_INCREMENT counters and the other databases their sequences and identities (except SQLite), so the ids of the inserted rows keep growing there.
 
 The cache remembers the used columns and the foreign keys read from the database. Visitors switch it in the top right corner between the `NotORM\Cache` classes listed in `caches` in `config.php` with their constructor arguments (or a function returning them, called with the PDO connection only for the chosen cache), `""` for off, the first one is the default: `APCu` (shared, needs the extension), `File` (shared), `Session` (every visitor starts empty, so the first visit of a page shows `SELECT *` and a reload only the used columns), `IncludeFile`, `Database` (the `notorm` table, its queries aren't logged) and off (always `SELECT *`, and the foreign keys are read on every request, outside the query log).
 

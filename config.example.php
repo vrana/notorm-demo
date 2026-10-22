@@ -9,6 +9,7 @@ return [
 		//~ "MS SQL" => ["sqlsrv:Server=localhost;Database=notorm_demo", "notorm_demo", ""],
 		//~ "Oracle" => ["oci:dbname=//localhost:1521/XEPDB1;charset=AL32UTF8", "notorm_demo", ""], // the user is the schema
 	],
+	"read_write" => true, // false rolls back the writes, e.g. for a public demo
 	"caches" => [ // class => constructor arguments or a function returning them called only for the chosen cache, the visitors can switch between them, the first one is the default
 		NotORM\Cache\File::class => [sys_get_temp_dir() . "/notorm-demo.dat"],
 		NotORM\Cache\IncludeFile::class => [sys_get_temp_dir() . "/notorm-demo.php"],

@@ -10,7 +10,6 @@ if ($id) {
 	}
 }
 
-$notice = "";
 if ($_POST) {
 	$data = [
 		"title" => $_POST["title"],
@@ -24,16 +23,16 @@ if ($_POST) {
 		if (!$application) {
 			$application = $db->application()->insert($data);
 			$application->application_tag()->insertMulti($tags);
-			return "Inserted application $application[id] and its tags";
+			return ["Inserted application $application[id] and its tags", "application.php?id=$application[id]"];
 		}
 		if (isset($_POST["delete"])) {
 			$deleted = $application->delete(); // ON DELETE CASCADE deletes its application_tag rows
-			return "Deleted " . plural($deleted, "application");
+			return ["Deleted " . plural($deleted, "application"), "."];
 		}
 		$updated = $application->update($data); // the row keeps its values, the page shows them after the rollback
 		$application->application_tag()->delete();
 		$application->application_tag()->insertMulti($tags);
-		return "Updated " . plural($updated, "application") . " and the tags";
+		return ["Updated " . plural($updated, "application") . " and the tags", "application.php?id=$application[id]"];
 	});
 }
 

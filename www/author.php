@@ -10,7 +10,6 @@ if ($id) {
 	}
 }
 
-$notice = "";
 if ($_POST) {
 	$data = [
 		"name" => $_POST["name"],
@@ -19,14 +18,14 @@ if ($_POST) {
 	$notice = demo_write($db, $log, function () use ($db, $author, $data) {
 		if (!$author) {
 			$author = $db->author()->insert($data);
-			return "Inserted author $author[id]";
+			return ["Inserted author $author[id]", "author.php?id=$author[id]"];
 		}
 		if (isset($_POST["delete"])) {
 			$deleted = $author->delete(); // fails if the author has applications
-			return "Deleted " . plural($deleted, "author");
+			return ["Deleted " . plural($deleted, "author"), "authors.php"];
 		}
 		$updated = $author->update($data); // the row keeps its values, the page shows them after the rollback
-		return "Updated " . plural($updated, "author");
+		return ["Updated " . plural($updated, "author"), "author.php?id=$author[id]"];
 	});
 }
 $form = ($_POST ? $data : $author); // after a POST, show what was sent

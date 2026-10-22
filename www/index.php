@@ -23,7 +23,7 @@ if (isset($_GET["tag"])) {
 }
 $offset = ($page - 1) * $perPage;
 
-page_header($setting["site_name"]);
+page_header($setting["site_name"], $notice); // e.g. after deleting an application
 ?>
 <form class="search" action=".">
 <input type="search" name="search" value="<?=h($search)?>" placeholder="Title or slogan" aria-label="Search">

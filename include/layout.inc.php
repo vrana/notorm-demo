@@ -48,8 +48,9 @@ function page_header(string $title, string $notice = ""): void {
 </form>
 </header>
 <main>
+<?=($_POST ? "" : $notice)?>
 <h1><?=h($title)?></h1>
-<?=$notice?>
+<?=($_POST ? $notice : "")?>
 <?php
 }
 

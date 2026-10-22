@@ -63,20 +63,31 @@ function options(iterable $rows, string $column, mixed $selected): string {
 	return $return;
 }
 
-/** Run the writes in a transaction which is always rolled back
-* @param callable(): string $write returns what was done, e.g. "Updated 1 row"
-* @return string HTML of the notice
+/** Run the writes in a transaction, commit it with read_write in config.php and go to the result, roll it back otherwise
+* @param callable(): array{string, string} $write returns what was done, e.g. "Updated 1 row", and the URL of the result
+* @return string HTML of the notice, without a commit
 */
 function demo_write(NotORM\NotORM $db, QueryLog $log, callable $write): string {
 	$from = $log->count();
 	$db->transaction = "BEGIN";
+	$commit = false;
 	try {
-		$return = "<p class='notice'>" . h($write()) . ". <b>This demo is read-only</b>, the change was rolled back.</p>\n";
+		[$message, $url] = $write();
+		$commit = READ_WRITE;
+		$return = "<p class='notice'>" . h($message) . "." . ($commit ? "" : " <b>This demo is read-only</b>, the change was rolled back.") . "</p>\n";
 	} catch (PDOException $exception) {
 		$return = "<p class='notice error'>Error: " . h(rtrim($exception->getMessage(), ".")) . ".</p>\n";
 	} finally {
-		$db->transaction = "ROLLBACK";
+		$db->transaction = ($commit ? "COMMIT" : "ROLLBACK");
 	}
 	$log->notice($from); // the writes go before the notice
+	if ($commit) { // the rows of this page may be gone or changed, bootstrap.inc.php shows the notice and the writes on the result
+		if (session_status() != PHP_SESSION_ACTIVE) {
+			session_start();
+		}
+		$_SESSION["notice"] = [$return, $log->export($from)];
+		header("Location: $url", true, 303);
+		exit;
+	}
 	return $return;
 }

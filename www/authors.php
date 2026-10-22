@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 require __DIR__ . "/../include/bootstrap.inc.php";
 
-page_header("Authors");
+page_header("Authors", $notice); // e.g. after deleting an author
 ?>
 <p><a class="button" href="author.php">New author</a></p>
 
