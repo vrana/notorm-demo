@@ -5,7 +5,7 @@
 
 $source = __DIR__ . "/vendor/vrana/jush";
 $target = __DIR__ . "/www/static/jush";
-$modules = ["jush", "jush-php", "jush-sql"];
+$modules = ["jush", "jush-php", "jush-sql", "jush-sqlite", "jush-pgsql", "jush-mssql", "jush-oracle"]; // the others use states of jush-sql and jush-sqlite
 
 if (!is_dir($target)) {
 	mkdir($target, 0777, true);

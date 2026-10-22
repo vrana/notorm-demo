@@ -2,9 +2,13 @@
 
 // Copy to config.php, which is not in the repository.
 return [
-	"dsn" => "mysql:host=localhost;dbname=notorm_demo;charset=utf8mb4",
-	"username" => "notorm_demo",
-	"password" => "",
+	"dbs" => [ // name => [DSN, username, password], the visitors can switch between them, the first one is the default, php setup.php name creates the tables
+		"MySQL" => ["mysql:host=localhost;dbname=notorm_demo;charset=utf8mb4", "notorm_demo", ""],
+		//~ "PostgreSQL" => ["pgsql:host=localhost;dbname=notorm_demo", "notorm_demo", ""],
+		//~ "SQLite" => ["sqlite:" . sys_get_temp_dir() . "/notorm-demo.sqlite", "", ""], // the web server writes to the file and its directory
+		//~ "MS SQL" => ["sqlsrv:Server=localhost;Database=notorm_demo", "notorm_demo", ""],
+		//~ "Oracle" => ["oci:dbname=//localhost:1521/XEPDB1;charset=AL32UTF8", "notorm_demo", ""], // the user is the schema
+	],
 	"caches" => [ // class => constructor arguments or a function returning them called only for the chosen cache, the visitors can switch between them, the first one is the default
 		NotORM\Cache\File::class => [sys_get_temp_dir() . "/notorm-demo.dat"],
 		NotORM\Cache\IncludeFile::class => [sys_get_temp_dir() . "/notorm-demo.php"],

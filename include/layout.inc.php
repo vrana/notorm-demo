@@ -30,7 +30,12 @@ function page_header(string $title, string $notice = ""): void {
 <a href="<?=$href?>"<?=($href == $page ? " aria-current='page'" : "")?>><?=$label?></a>
 <?php } ?>
 </nav>
-<form class="cache" method="post">
+<form class="switch" method="post">
+<label>Database <select name="db">
+<?php foreach (DBS as $value) { ?>
+<option<?=($value == db_choice() ? " selected" : "")?>><?=h($value)?></option>
+<?php } ?>
+</select></label>
 <label>Cache <select name="cache">
 <?php foreach (CACHES as $value) { ?>
 <option value="<?=h($value ?: "off")?>"<?=($value == cache_choice() ? " selected" : "")?>><?=h($value ?: "off")?></option>
@@ -49,7 +54,7 @@ function page_header(string $title, string $notice = ""): void {
 }
 
 /** Print the page with the places of the queries marked, the queries and the page end */
-function page_footer(QueryLog $log, ?NotORM\Cache $cache): void {
+function page_footer(QueryLog $log, ?CacheByDatabase $cache): void {
 	$html = (string) ob_get_clean();
 	preg_match("~<h1>.*?</h1>\n(<p class='notice[^']*'>.*?</p>\n)?~s", $html, $match, PREG_OFFSET_CAPTURE);
 	echo $log->mark($html, $match[0][1] + strlen($match[0][0])); // the queries run before the page printed anything go by its title or notice
@@ -58,7 +63,7 @@ function page_footer(QueryLog $log, ?NotORM\Cache $cache): void {
 	?>
 <footer>
 <?php if ($cache) { ?>
-<p>NotORM remembers which columns each page used, in <code><?=h(get_class($cache))?></code>.
+<p>NotORM remembers which columns each page used, in <code><?=h(get_class($cache->cache))?></code>.
 The first visit of a page selects <code class="jush-sql">*</code>, the next ones only these columns.</p>
 <?php } else { ?>
 <p>The cache is off, so NotORM doesn't know which columns the page uses and selects <code class="jush-sql">*</code>.</p>
@@ -75,7 +80,7 @@ The first visit of a page selects <code class="jush-sql">*</code>, the next ones
 }
 
 /** Print a 404 page and stop */
-function not_found(QueryLog $log, ?NotORM\Cache $cache): void {
+function not_found(QueryLog $log, ?CacheByDatabase $cache): void {
 	http_response_code(404);
 	page_header("Not found");
 	echo "<p>There is no such row. <a href='.'>Back to the applications</a>.</p>\n";

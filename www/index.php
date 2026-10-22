@@ -44,7 +44,7 @@ page_header($setting["site_name"]);
 <?php } ?>
 	<th>Tags
 </thead>
-<?php foreach ($applications->order($order, "id")->limit($perPage, $offset) as $application) { ?>
+<?php foreach ($applications->order($order, "application.id")->limit($perPage, $offset) as $application) { ?>
 <tr>
 	<td data-label="Title"><?=a("application.php?id=$application[id]", $application["title"])?><br><small><?=h($application["slogan"])?></small>
 	<td data-label="Author"><?=a("author.php?id=$application[author_id]", $application->author["name"])?>

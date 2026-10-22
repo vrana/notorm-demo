@@ -1,17 +1,6 @@
--- The structure of NotORM's tests/software.sql with more rows, for MySQL.
--- The ids are AUTO_INCREMENT so that the demo can insert rows.
+-- The rows of all databases, the tables are in mysql.sql, pgsql.sql and sqlite.sql.
 -- Each table has its own hundred (author 1xx, tag 2xx, application 3xx, category 4xx), so an id never matches a row of another table by mistake.
--- Every statement ends with ";" at the end of a line, setup.php splits the file there.
-
-DROP TABLE IF EXISTS application_tag, application, tag, author, category, setting, notorm;
-
-CREATE TABLE author (
-  id int NOT NULL AUTO_INCREMENT,
-  name varchar(30) NOT NULL,
-  web varchar(100) NOT NULL,
-  born date DEFAULT NULL,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Every statement ends with ";" at the end of a line, setup.php splits the files there.
 
 INSERT INTO author (id, name, web) VALUES
 (101, 'Jakub Vrana', 'https://www.vrana.cz/'),
@@ -29,12 +18,6 @@ INSERT INTO author (id, name, web) VALUES
 (113, 'Ryan Dahl', 'https://tinyclouds.org/'),
 (114, 'D. Richard Hipp', 'https://www.hwaci.com/drh/');
 
-CREATE TABLE tag (
-  id int NOT NULL AUTO_INCREMENT,
-  name varchar(20) NOT NULL,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 INSERT INTO tag (id, name) VALUES
 (201, 'PHP'),
 (202, 'MySQL'),
@@ -46,21 +29,6 @@ INSERT INTO tag (id, name) VALUES
 (208, 'CLI'),
 (209, 'Debugging'),
 (210, 'Parser');
-
-CREATE TABLE application (
-  id int NOT NULL AUTO_INCREMENT,
-  author_id int NOT NULL,
-  maintainer_id int,
-  title varchar(50) NOT NULL,
-  web varchar(100),
-  slogan varchar(100) NOT NULL,
-  logo blob,
-  PRIMARY KEY (id),
-  CONSTRAINT application_author FOREIGN KEY (author_id) REFERENCES author (id),
-  CONSTRAINT application_maintainer FOREIGN KEY (maintainer_id) REFERENCES author (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE INDEX application_title ON application (title);
 
 INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUES
 (301, 101, 101, 'Adminer', 'https://www.adminer.org/', 'Database management in a single PHP file'),
@@ -94,14 +62,6 @@ INSERT INTO application (id, author_id, maintainer_id, title, web, slogan) VALUE
 (330, 114, 114, 'Fossil', 'https://fossil-scm.org/', 'Simple, high-reliability, distributed version control'),
 (331, 112, 112, 'Private Packagist', 'https://packagist.com/', 'Composer repository for private packages');
 
-CREATE TABLE application_tag (
-  application_id int NOT NULL,
-  tag_id int NOT NULL,
-  PRIMARY KEY (application_id, tag_id),
-  CONSTRAINT application_tag_tag FOREIGN KEY (tag_id) REFERENCES tag (id),
-  CONSTRAINT application_tag_application FOREIGN KEY (application_id) REFERENCES application (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 INSERT INTO application_tag (application_id, tag_id) VALUES
 (301, 201), (301, 202), (301, 207),
 (302, 203),
@@ -134,14 +94,6 @@ INSERT INTO application_tag (application_id, tag_id) VALUES
 (330, 208),
 (331, 201);
 
-CREATE TABLE category (
-  id int NOT NULL AUTO_INCREMENT,
-  name varchar(30) NOT NULL,
-  parent_id int,
-  PRIMARY KEY (id),
-  CONSTRAINT category_parent FOREIGN KEY (parent_id) REFERENCES category (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 INSERT INTO category (id, name, parent_id) VALUES
 (401, 'Database', NULL),
 (402, 'Web', NULL),
@@ -156,16 +108,4 @@ INSERT INTO category (id, name, parent_id) VALUES
 (411, 'Engine', 401),
 (412, 'Code coverage', 407);
 
-CREATE TABLE setting (
-  site_name varchar(50) NOT NULL,
-  per_page int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 INSERT INTO setting (site_name, per_page) VALUES ('Software', 10);
-
--- NotORM\Cache\Database
-CREATE TABLE notorm (
-  id varchar(255) NOT NULL,
-  data text NOT NULL,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

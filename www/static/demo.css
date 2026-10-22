@@ -44,8 +44,9 @@ header .brand span { color: var(--accent); }
 header nav { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; }
 header nav a { text-decoration: none; }
 header nav a[aria-current] { color: var(--fg); font-weight: 600; }
-header .cache { display: flex; gap: .5em; margin-left: auto; color: var(--muted); }
-header .cache select { padding: .1rem .3rem; }
+header .switch { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; margin-left: auto; color: var(--muted); }
+header .switch label { display: flex; gap: .5em; align-items: baseline; }
+header .switch select { padding: .1rem .3rem; }
 
 table { border-collapse: collapse; width: 100%; }
 th, td { text-align: left; vertical-align: top; padding: .4rem .6rem; border-bottom: 1px solid var(--line); }

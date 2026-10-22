@@ -1,0 +1,60 @@
+-- The tables of NotORM's tests/software.sql for MS SQL, the rows are in data.sql.
+-- The ids are IDENTITY so that the demo can insert rows, setup.php sets IDENTITY_INSERT for the explicit ids in data.sql.
+
+DROP TABLE IF EXISTS application_tag, application, tag, author, category, setting, notorm;
+
+CREATE TABLE author (
+  id int IDENTITY NOT NULL,
+  name varchar(30) NOT NULL,
+  web varchar(100) NOT NULL,
+  born date DEFAULT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE tag (
+  id int IDENTITY NOT NULL,
+  name varchar(20) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE application (
+  id int IDENTITY NOT NULL,
+  author_id int NOT NULL,
+  maintainer_id int,
+  title varchar(50) NOT NULL,
+  web varchar(100),
+  slogan varchar(100) NOT NULL,
+  logo varbinary(max),
+  PRIMARY KEY (id),
+  CONSTRAINT application_author FOREIGN KEY (author_id) REFERENCES author (id),
+  CONSTRAINT application_maintainer FOREIGN KEY (maintainer_id) REFERENCES author (id)
+);
+
+CREATE INDEX application_title ON application (title);
+
+CREATE TABLE application_tag (
+  application_id int NOT NULL,
+  tag_id int NOT NULL,
+  PRIMARY KEY (application_id, tag_id),
+  CONSTRAINT application_tag_tag FOREIGN KEY (tag_id) REFERENCES tag (id),
+  CONSTRAINT application_tag_application FOREIGN KEY (application_id) REFERENCES application (id) ON DELETE CASCADE
+);
+
+CREATE TABLE category (
+  id int IDENTITY NOT NULL,
+  name varchar(30) NOT NULL,
+  parent_id int,
+  PRIMARY KEY (id),
+  CONSTRAINT category_parent FOREIGN KEY (parent_id) REFERENCES category (id)
+);
+
+CREATE TABLE setting (
+  site_name varchar(50) NOT NULL,
+  per_page int NOT NULL
+);
+
+CREATE TABLE notorm (
+  id varchar(255) NOT NULL,
+  data varchar(max) NOT NULL,
+  PRIMARY KEY (id)
+);

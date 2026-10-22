@@ -10,7 +10,7 @@ The demo is read-only. A write runs for real in a transaction, so its queries an
 
 ## Running it
 
-Needs PHP 8.0+ with PDO MySQL and Composer.
+Needs PHP 8.0+ with Composer and PDO for the databases: MySQL or MariaDB, PostgreSQL, SQLite, MS SQL (`pdo_sqlsrv`), Oracle (`pdo_oci`).
 
 ```bash
 composer install
@@ -22,11 +22,13 @@ composer install
 cp config.example.php config.php
 ```
 
-Fill in the database and the account in `config.php`, then create the tables and the data, here with an account that may create tables:
+Fill in the databases in `config.php`: `dbs` maps a name to the DSN, username and password. Visitors switch between them in the top right corner, the first one is the default. Then create the tables and the rows in each of them, here with an account that may create tables:
 
 ```bash
-php setup.php root password
+php setup.php MySQL root password
 ```
+
+`setup.php` takes the tables from `sql/mysql.sql`, `sql/pgsql.sql`, `sql/sqlite.sql`, `sql/sqlsrv.sql` or `sql/oci.sql` by the PDO driver and the rows from `sql/data.sql`, the same in all databases.
 
 The document root is `www/`. Locally:
 
@@ -42,11 +44,31 @@ The web account needs only these rights; `setup.php` is run by an administrator:
 CREATE DATABASE notorm_demo CHARACTER SET utf8mb4;
 CREATE USER 'notorm_demo'@'localhost' IDENTIFIED BY '…';
 GRANT SELECT, INSERT, UPDATE, DELETE ON notorm_demo.* TO 'notorm_demo'@'localhost';
+
+-- PostgreSQL, as a superuser; the grants on the tables again after each php setup.php PostgreSQL
+CREATE DATABASE notorm_demo;
+CREATE ROLE notorm_demo LOGIN PASSWORD '…';
+GRANT CONNECT ON DATABASE notorm_demo TO notorm_demo;
+\c notorm_demo
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO notorm_demo;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO notorm_demo;
 ```
 
-The forms send what the visitor typed and the database validates it, so the server needs `STRICT_TRANS_TABLES` in `sql_mode` (the default since MySQL 5.7 and MariaDB 10.2.4); without it, too long values would be cut silently.
+With SQLite, the web server needs to write the database file and its directory, where SQLite creates the journal of the transaction.
 
-Writes are rolled back, but MySQL doesn't roll back AUTO_INCREMENT counters, so the ids of the inserted rows keep growing.
+In MS SQL, an administrator creates the database and makes the login its `db_owner`. In Oracle, a database is a user with its schema, the web account is the owner of the tables:
+
+```sql
+-- Oracle, as a DBA
+CREATE USER notorm_demo IDENTIFIED BY "…" QUOTA UNLIMITED ON USERS;
+GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE TO notorm_demo; -- a sequence for each identity column
+```
+
+NotORM can't read the id of an inserted row in Oracle, PDO_OCI doesn't implement `lastInsertId()`. The notices then show no id and inserting an application with tags fails.
+
+The forms send what the visitor typed and the database validates it, so the server needs `STRICT_TRANS_TABLES` in `sql_mode` (the default since MySQL 5.7 and MariaDB 10.2.4); without it, too long values would be cut silently. PostgreSQL, MS SQL and Oracle check the lengths too, SQLite doesn't.
+
+Writes are rolled back, but MySQL doesn't roll back AUTO_INCREMENT counters and the other databases their sequences and identities (except SQLite), so the ids of the inserted rows keep growing there.
 
 The cache remembers the used columns and the foreign keys read from the database. Visitors switch it in the top right corner between the `NotORM\Cache` classes listed in `caches` in `config.php` with their constructor arguments (or a function returning them, called with the PDO connection only for the chosen cache), `""` for off, the first one is the default: `APCu` (shared, needs the extension), `File` (shared), `Session` (every visitor starts empty, so the first visit of a page shows `SELECT *` and a reload only the used columns), `IncludeFile`, `Database` (the `notorm` table, its queries aren't logged) and off (always `SELECT *`, and the foreign keys are read on every request, outside the query log).
 

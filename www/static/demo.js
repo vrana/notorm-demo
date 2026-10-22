@@ -3,8 +3,10 @@ jush.style('static/jush/jush.css');
 jush.style('static/jush/jush-dark.css', '(prefers-color-scheme: dark)');
 jush.highlight_tag('code', 0); // keep tabs, their width is set by CSS tab-size
 
-// the cache switch in the header is sent right after a change
-document.querySelector('header .cache select').addEventListener('change', event => event.target.form.submit());
+// the database and cache switches in the header are sent right after a change
+for (const select of document.querySelectorAll('header .switch select')) {
+	select.addEventListener('change', event => event.target.form.submit());
+}
 
 // move each query next to the block of <main> showing its data, QueryLog::mark() put <template data-query> where the data start
 const main = document.querySelector('main');

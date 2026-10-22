@@ -22,6 +22,23 @@ function cache_choice(): string {
 	return (in_array($choice, CACHES, true) ? $choice : CACHES[0]); // e.g. a cache which is no longer allowed
 }
 
+/** JUSH language of the SQL dialect, build-jush.php builds these */
+function sql_language(PDO $connection): string {
+	return match ($connection->getAttribute(PDO::ATTR_DRIVER_NAME)) {
+		"sqlite" => "sqlite",
+		"pgsql" => "pgsql",
+		"sqlsrv", "dblib", "mssql" => "mssql",
+		"oci" => "oracle",
+		default => "sql", // MySQL and MariaDB
+	};
+}
+
+/** Database chosen by the visitor in the header, one of DBS: the names from config.php */
+function db_choice(): string {
+	$choice = $_COOKIE["db"] ?? DBS[0]; // no cookie before the first switch
+	return (in_array($choice, DBS, true) ? $choice : DBS[0]); // e.g. a database which is no longer configured
+}
+
 /** Milliseconds with two decimals */
 function format_time(float $milliseconds): string {
 	return number_format($milliseconds, 2) . " ms";

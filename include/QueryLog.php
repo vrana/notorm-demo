@@ -73,6 +73,7 @@ class QueryLog {
 	/** Print the queries with the locations linked to the source */
 	function render(): void {
 		$www = dirname(__DIR__) . DIRECTORY_SEPARATOR . "www" . DIRECTORY_SEPARATOR;
+		$language = sql_language($this->connection);
 		echo "<section class='log'>\n";
 		foreach ($this->entries as $i => $entry) {
 			$code = $this->statement($entry["file"], $entry["line"]);
@@ -82,7 +83,7 @@ class QueryLog {
 			echo a(strtr($this->source, ['$file' => $file, '$line' => $entry["line"]]), basename($file) . ":$entry[line]");
 			echo " <span class='time'>" . format_time($entry["time"]) . "</span></div>\n";
 			echo "<pre><code class='jush-php'>" . h($code) . "</code></pre>\n";
-			echo "<pre><code class='jush-sql'>" . h($this->formatQuery($entry["query"], $entry["parameters"])) . "</code></pre>\n";
+			echo "<pre><code class='jush-$language'>" . h($this->formatQuery($entry["query"], $entry["parameters"])) . "</code></pre>\n";
 			echo "</div>\n";
 		}
 		echo "</section>\n";
