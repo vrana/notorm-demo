@@ -4,7 +4,7 @@ The source of [demo.notorm.com](https://demo.notorm.com/), a small site built wi
 
 - **Applications** (`index.php`): search, ordering by a joined table, a tag filter and pagination. Authors, maintainers and tags of all listed applications are loaded in one query each, never one per row.
 - **Application, author, tag**: the detail with the referencing rows (`via()` for the second foreign key to the same table), and forms to insert, update and delete.
-- **Categories**: a tree from a self-referencing table, one query per level.
+- **Categories**: a tree from a self-referencing table, all levels in one query.
 
 The forms insert, update and delete in a transaction. With `"read_write" => true` in `config.php` (the default), it is committed and the browser goes to the result, which shows the notice and the queries of the write. With `false` it is rolled back, so the queries and their time are real but the data stay; demo.notorm.com runs so.
 
