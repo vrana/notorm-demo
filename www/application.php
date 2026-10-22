@@ -46,7 +46,7 @@ if ($application) {
 	?>
 <dl>
 	<dt>Slogan<dd><?=h($application["slogan"])?>
-	<dt>Web<dd><?=($application["web"] ? a($application["web"], $application["web"]) : "")?>
+	<dt>Web<dd><?=web($application["web"])?>
 	<dt>Author<dd><?=a("author.php?id=$application[author_id]", $application->author["name"])?>
 	<dt>Maintainer<dd><?=($application->maintainer ? a("author.php?id=$application[maintainer_id]", $application->maintainer["name"]) : "")?>
 	<dt>Tags<dd><?php foreach ($application->application_tag()->select("tag.*")->order("tag.name") as $application_tag) { ?>

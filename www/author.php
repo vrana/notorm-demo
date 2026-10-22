@@ -34,7 +34,7 @@ page_header($author["name"] ?? "New author", $notice);
 if ($author) {
 	?>
 <dl>
-	<dt>Web<dd><?=a($author["web"], $author["web"])?>
+	<dt>Web<dd><?=web($author["web"])?>
 </dl>
 
 <h2>Applications</h2>

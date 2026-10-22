@@ -5,9 +5,14 @@ function h(mixed $string): string {
 	return htmlspecialchars((string) $string, ENT_QUOTES | ENT_SUBSTITUTE);
 }
 
-/** Link with escaped text, external links open in a new window */
+/** Link with escaped text, external links open in a new window; $href is ours, web() links the URLs typed by visitors */
 function a(string $href, mixed $text): string {
 	return "<a href='" . h($href) . "'" . (preg_match('~^https?://~i', $href) ? " target='_blank'" : "") . ">" . h($text) . "</a>";
+}
+
+/** Link to a URL from the database, other than http and https only as text, e.g. javascript: would run in this site */
+function web(?string $url): string {
+	return (preg_match('~^https?://~i', $url ?? "") ? a($url, $url) : h($url));
 }
 
 /** Count with a noun, e.g. "0 authors", "1 author" */

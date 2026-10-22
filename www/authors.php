@@ -10,7 +10,7 @@ page_header("Authors", $notice); // e.g. after deleting an author
 <?php foreach ($db->author()->order("name") as $author) { ?>
 <tr>
 	<td data-label="Name"><?=a("author.php?id=$author[id]", $author["name"])?>
-	<td data-label="Web"><?=a($author["web"], $author["web"])?>
+	<td data-label="Web"><?=web($author["web"])?>
 	<td data-label="Authored" class="number"><?=$author->application()->via("author_id")->count("*")?>
 	<td data-label="Maintained" class="number"><?=$author->application()->via("maintainer_id")->count("*")?>
 <?php } ?>
