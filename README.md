@@ -10,7 +10,7 @@ The forms insert, update and delete in a transaction. With `"read_write" => true
 
 ## Running it
 
-Needs PHP 8.0+ with Composer and PDO for the databases: MySQL or MariaDB, PostgreSQL, SQLite, MS SQL (`pdo_sqlsrv`), Oracle (`pdo_oci`).
+Needs PHP 8.0+ with Composer and PDO for one of the databases: MySQL or MariaDB, PostgreSQL, SQLite, MS SQL, Oracle.
 
 ```bash
 composer install
@@ -43,28 +43,33 @@ php -S 127.0.0.1:8000 -t www
 The web account needs only these rights; `setup.php` is run by an administrator:
 
 ```sql
+-- MySQL/MariaDB
 CREATE DATABASE notorm_demo CHARACTER SET utf8mb4;
 CREATE USER 'notorm_demo'@'localhost' IDENTIFIED BY '…';
 GRANT SELECT, INSERT, UPDATE, DELETE ON notorm_demo.* TO 'notorm_demo'@'localhost';
 
--- PostgreSQL, as a superuser; the grants on the tables again after each php setup.php PostgreSQL
+-- PostgreSQL
 CREATE DATABASE notorm_demo;
 CREATE ROLE notorm_demo LOGIN PASSWORD '…';
 GRANT CONNECT ON DATABASE notorm_demo TO notorm_demo;
 \c notorm_demo
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO notorm_demo;
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO notorm_demo;
+
+-- MS SQL
+CREATE DATABASE notorm_demo;
+CREATE LOGIN notorm_demo WITH PASSWORD = '…';
+USE notorm_demo;
+CREATE USER notorm_demo FOR LOGIN notorm_demo;
+ALTER ROLE db_owner ADD MEMBER notorm_demo;
+
+-- Oracle
+CREATE USER notorm_demo IDENTIFIED BY "…" QUOTA UNLIMITED ON USERS;
+GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE TO notorm_demo; -- a sequence for each identity column
+REVOKE CREATE TABLE, CREATE SEQUENCE FROM notorm_demo; -- after setup.php
 ```
 
 With SQLite, the web server needs to write the database file and its directory, where SQLite creates the journal of the transaction.
-
-In MS SQL, an administrator creates the database and makes the login its `db_owner`. In Oracle, a database is a user with its schema, the web account is the owner of the tables:
-
-```sql
--- Oracle, as a DBA
-CREATE USER notorm_demo IDENTIFIED BY "…" QUOTA UNLIMITED ON USERS;
-GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE TO notorm_demo; -- a sequence for each identity column
-```
 
 NotORM can't read the id of an inserted row in Oracle, PDO_OCI doesn't implement `lastInsertId()`. The notices then show no id and inserting an application with tags fails.
 
