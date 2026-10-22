@@ -71,8 +71,6 @@ REVOKE CREATE TABLE, CREATE SEQUENCE FROM notorm_demo; -- after setup.php
 
 With SQLite, the web server needs to write the database file and its directory, where SQLite creates the journal of the transaction.
 
-NotORM can't read the id of an inserted row in Oracle, PDO_OCI doesn't implement `lastInsertId()`. The notices then show no id and inserting an application with tags fails.
-
 The forms send what the visitor typed and the database validates it, so the server needs `STRICT_TRANS_TABLES` in `sql_mode` (the default since MySQL 5.7 and MariaDB 10.2.4); without it, too long values would be cut silently. PostgreSQL, MS SQL and Oracle check the lengths too, SQLite doesn't.
 
 Set `"read_write" => false` for a public demo. The writes are then rolled back, but MySQL doesn't roll back AUTO_INCREMENT counters and the other databases their sequences and identities (except SQLite), so the ids of the inserted rows keep growing there.
