@@ -71,11 +71,12 @@ function demo_write(NotORM\NotORM $db, QueryLog $log, callable $write): string {
 	$from = $log->count();
 	$db->transaction = "BEGIN";
 	try {
-		$return = "<p class='notice'>" . h($write()) . " in " . format_time($log->time($from)) . ". <b>This demo is read-only</b>, the change was rolled back.</p>\n";
+		$return = "<p class='notice'>" . h($write()) . ". <b>This demo is read-only</b>, the change was rolled back.</p>\n";
 	} catch (PDOException $exception) {
 		$return = "<p class='notice error'>Error: " . h(rtrim($exception->getMessage(), ".")) . ".</p>\n";
 	} finally {
 		$db->transaction = "ROLLBACK";
 	}
+	$log->notice($from); // the writes go before the notice
 	return $return;
 }

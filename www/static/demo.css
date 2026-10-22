@@ -55,7 +55,7 @@ th a { text-decoration: none; }
 td small { color: var(--muted); }
 .tag { display: inline-block; font-size: .75rem; padding: 0 .45em; border-radius: .3em; background: var(--accent-bg); text-decoration: none; margin: 0 .2em .2em 0; }
 .number { text-align: right; }
-dl { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; }
+dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .25rem 1rem; } /* minmax - a query in dd mustn't widen it */
 dt { color: var(--muted); }
 dd { margin: 0; }
 
@@ -83,14 +83,20 @@ pre { font-size: .875rem; line-height: 1.5; margin: 0; overflow-x: auto; scrollb
 :not(pre) > code { font-size: .85em; }
 .jush a { text-decoration: none; }
 .queries { margin: .75rem 0 1.25rem; } /* the queries moved by demo.js next to the block with their data */
-.query { border: 1px solid var(--line); border-radius: .3rem; margin-bottom: .6rem; background: var(--panel); }
+.query { width: 0; min-width: 100%; border: 1px solid var(--line); border-radius: .3rem; margin-bottom: .6rem; background: var(--panel); } /* width - fills its place without widening a table cell or a grid column */
 .query > * { padding: .35rem .6rem; }
 .query pre + pre { border-top: 1px dashed var(--line); }
 .query .meta { display: flex; gap: 1em; font-size: .875rem; color: var(--muted); border-bottom: 1px solid var(--line); }
 .query .time { margin-left: auto; font-variant-numeric: tabular-nums; }
+.query.highlight, .query:hover { outline: 2px solid var(--accent); outline-offset: 1px; }
+.queries:empty { display: none; }
+form.edit > .query { grid-column: 1 / -1; }
+.query-link { font-size: .75rem; font-weight: normal; color: var(--muted); text-decoration: none; vertical-align: .3em; }
+.query-link:hover { color: var(--accent); }
+.query-link.highlight { color: var(--accent); background: var(--accent-bg); outline: 2px solid var(--accent); border-radius: .2em; } /* its query is hovered */
 
-/* data on the left, the queries which loaded them floated right from the top of the block, pushed down by the previous ones */
-@media (min-width: 1300px) {
+/* wide screens: data on the left, the queries which loaded them floated right from the top of the block, pushed down by the previous ones; 1024px also in demo.js */
+@media (min-width: 1024px) {
 	main, .log, footer { max-width: 120rem; }
 	main { display: flow-root; }
 	main > :not(.queries) { margin-right: calc(50% + 2rem); }
@@ -100,7 +106,9 @@ pre { font-size: .875rem; line-height: 1.5; margin: 0; overflow-x: auto; scrollb
 
 footer { margin-top: 2rem; padding-bottom: 2rem; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--line); }
 
-@media (max-width: 900px) {
+/* narrow screens: the queries in the data, the tables and forms in one column */
+@media not all and (min-width: 1024px) {
+	.query-link { display: none; } /* the queries themselves are there */
 	h1 { font-size: 1.6rem; }
 	table, tbody, tr, td { display: block; }
 	thead { display: none; }
@@ -108,6 +116,6 @@ footer { margin-top: 2rem; padding-bottom: 2rem; color: var(--muted); font-size:
 	td { border: 0; padding: .1rem 0; }
 	td[data-label]::before { content: attr(data-label) ": "; color: var(--muted); font-size: .8rem; }
 	td[data-label="Title"]::before { content: none; }
-	form.edit { grid-template-columns: 1fr; }
+	form.edit { grid-template-columns: minmax(0, 1fr); }
 	form.edit .buttons { grid-column: 1; }
 }

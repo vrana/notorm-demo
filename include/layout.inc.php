@@ -56,8 +56,8 @@ function page_header(string $title, string $notice = ""): void {
 /** Print the page with the places of the queries marked, the queries and the page end */
 function page_footer(QueryLog $log, ?CacheByDatabase $cache): void {
 	$html = (string) ob_get_clean();
-	preg_match("~<h1>.*?</h1>\n(<p class='notice[^']*'>.*?</p>\n)?~s", $html, $match, PREG_OFFSET_CAPTURE);
-	echo $log->mark($html, $match[0][1] + strlen($match[0][0])); // the queries run before the page printed anything go by its title or notice
+	$notice = strpos($html, "<p class='notice");
+	echo $log->mark($html, (int) strpos($html, "<h1>"), ($notice === false ? null : $notice)); // the queries run before the page printed anything go before the title or the notice
 	echo "</main>\n";
 	$log->render();
 	?>

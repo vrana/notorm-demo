@@ -6,6 +6,7 @@ class QueryLog {
 	private int $start = 0;
 	/** @var list<string> directories whose frames are skipped when looking for the code which caused the query */ private array $skip;
 	/** @var array<string, list<array{int, int, string}>> file => [first line, last line, code] */ private array $statements = [];
+	/** @var array<int, true> entries reported by the notice, see mark() */ private array $notice = [];
 
 	/** @param string $source URL of the code which caused a query with $file relative to www/ and $line */
 	function __construct(
@@ -39,24 +40,30 @@ class QueryLog {
 		$this->entries[count($this->entries) - 1]["time"] = (hrtime(true) - $this->start) / 1e6;
 	}
 
-	/** Number of logged queries, use as $from in time() */
+	/** Number of logged queries, use as $from in notice() */
 	function count(): int {
 		return count($this->entries);
 	}
 
-	/** Total time of the queries since $from in milliseconds */
-	function time(int $from): float {
-		return array_sum(array_column(array_slice($this->entries, $from), "time"));
+	/** The queries since $from are reported by the notice, e.g. the writes */
+	function notice(int $from): void {
+		for ($i = $from; $i < count($this->entries); $i++) {
+			$this->notice[$i] = true;
+		}
 	}
 
-	/** Mark the places in the page where the data of each query start, demo.js moves the query there
+	/** Mark the places in the page where the data of each query start, demo.js puts the query or a link to it there
 	* @param string $html the page printed since bootstrap.inc.php
-	* @param int $start the queries run before this offset are marked here, e.g. after the title
+	* @param int $title offset of the title, the queries run before it are marked there
+	* @param ?int $notice offset of the notice, the queries reported by it are marked there
 	*/
-	function mark(string $html, int $start): string {
+	function mark(string $html, int $title, ?int $notice): string {
 		$markers = [];
 		foreach ($this->entries as $i => $entry) {
-			$offset = max($start, $entry["offset"]);
+			$offset = $entry["offset"];
+			if ($offset < $title) { // run before the page printed anything
+				$offset = (isset($this->notice[$i]) && $notice !== null ? $notice : $title);
+			}
 			$open = strrpos(substr($html, 0, $offset), "<");
 			if ($open !== false && $open > (int) strrpos(substr($html, 0, $offset), ">")) {
 				$offset = $open; // not inside a tag

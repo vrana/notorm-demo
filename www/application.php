@@ -2,6 +2,14 @@
 require __DIR__ . "/../include/bootstrap.inc.php";
 
 $id = $_GET["id"] ?? ""; // no id for a new row
+$application = null;
+if ($id) {
+	$application = $db->application[$id];
+	if (!$application) {
+		not_found($log, $cache);
+	}
+}
+
 $notice = "";
 if ($_POST) {
 	$data = [
@@ -12,39 +20,27 @@ if ($_POST) {
 		"slogan" => $_POST["slogan"],
 	];
 	$tags = array_map(fn($tag_id) => ["tag_id" => $tag_id], $_POST["tags"] ?? []); // no tags[] without a checked checkbox
-	$notice = demo_write($db, $log, function () use ($db, $id, $data, $tags) {
-		if (isset($_POST["delete"])) {
-			$deleted = $db->application("id", $id)->delete(); // ON DELETE CASCADE deletes its application_tag rows
-			return "Deleted " . plural($deleted, "application");
-		}
-		if (!$id) {
+	$notice = demo_write($db, $log, function () use ($db, $application, $data, $tags) {
+		if (!$application) {
 			$application = $db->application()->insert($data);
 			$application->application_tag()->insertMulti($tags);
 			return "Inserted application $application[id] and its tags";
 		}
-		$application = $db->application[$id];
-		$updated = $application->update($data);
+		if (isset($_POST["delete"])) {
+			$deleted = $application->delete(); // ON DELETE CASCADE deletes its application_tag rows
+			return "Deleted " . plural($deleted, "application");
+		}
+		$updated = $application->update($data); // the row keeps its values, the page shows them after the rollback
 		$application->application_tag()->delete();
 		$application->application_tag()->insertMulti($tags);
 		return "Updated " . plural($updated, "application") . " and the tags";
 	});
 }
 
-$application = null;
-$tags = [];
-if ($id) {
-	$application = $db->application[$id];
-	if (!$application) {
-		not_found($log, $cache);
-	}
-	foreach ($application->application_tag() as $application_tag) {
-		$tags[$application_tag["tag_id"]] = $application_tag->tag;
-	}
-}
+$tags = []; // filled by the list of tags for the form
 
 $authors = $db->author()->order("name"); // used twice, queried once
 $form = ($_POST ? $data : $application); // after a POST, show what was sent
-$checked = ($_POST ? array_flip($_POST["tags"] ?? []) : $tags);
 
 page_header($application["title"] ?? "New application", $notice);
 if ($application) {
@@ -54,12 +50,16 @@ if ($application) {
 	<dt>Web<dd><?=($application["web"] ? a($application["web"], $application["web"]) : "")?>
 	<dt>Author<dd><?=a("author.php?id=$application[author_id]", $application->author["name"])?>
 	<dt>Maintainer<dd><?=($application->maintainer ? a("author.php?id=$application[maintainer_id]", $application->maintainer["name"]) : "")?>
-	<dt>Tags<dd><?php foreach ($tags as $tag) { ?><a class="tag" href="tag.php?id=<?=$tag["id"]?>"><?=h($tag["name"])?></a><?php } ?>
+	<dt>Tags<dd><?php foreach ($application->application_tag() as $application_tag) { ?>
+		<?php $tags[$application_tag["tag_id"]] = true; // for the form ?>
+		<a class="tag" href="tag.php?id=<?=$application_tag["tag_id"]?>"><?=h($application_tag->tag["name"])?></a>
+	<?php } ?>
 </dl>
 
 <h2>Edit</h2>
 <?php
 }
+$checked = ($_POST ? array_flip($_POST["tags"] ?? []) : $tags);
 ?>
 <form class="edit" method="post">
 	<label for="title">Title</label>

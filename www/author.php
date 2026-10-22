@@ -2,32 +2,32 @@
 require __DIR__ . "/../include/bootstrap.inc.php";
 
 $id = $_GET["id"] ?? ""; // no id for a new row
-$notice = "";
-if ($_POST) {
-	$data = [
-		"name" => $_POST["name"],
-		"web" => $_POST["web"],
-	];
-	$notice = demo_write($db, $log, function () use ($db, $id, $data) {
-		if (isset($_POST["delete"])) {
-			$deleted = $db->author("id", $id)->delete(); // fails if the author has applications
-			return "Deleted " . plural($deleted, "author");
-		}
-		if (!$id) {
-			$author = $db->author()->insert($data);
-			return "Inserted author $author[id]";
-		}
-		$updated = $db->author("id", $id)->update($data);
-		return "Updated " . plural($updated, "author");
-	});
-}
-
 $author = null;
 if ($id) {
 	$author = $db->author[$id];
 	if (!$author) {
 		not_found($log, $cache);
 	}
+}
+
+$notice = "";
+if ($_POST) {
+	$data = [
+		"name" => $_POST["name"],
+		"web" => $_POST["web"],
+	];
+	$notice = demo_write($db, $log, function () use ($db, $author, $data) {
+		if (!$author) {
+			$author = $db->author()->insert($data);
+			return "Inserted author $author[id]";
+		}
+		if (isset($_POST["delete"])) {
+			$deleted = $author->delete(); // fails if the author has applications
+			return "Deleted " . plural($deleted, "author");
+		}
+		$updated = $author->update($data); // the row keeps its values, the page shows them after the rollback
+		return "Updated " . plural($updated, "author");
+	});
 }
 $form = ($_POST ? $data : $author); // after a POST, show what was sent
 

@@ -21,7 +21,6 @@ if (isset($_GET["tag"])) {
 	$tag = $db->tag[$_GET["tag"]];
 	$applications->where("application_tag:tag_id", $_GET["tag"]); // : joins the referencing table
 }
-$count = $applications->count("*");
 $offset = ($page - 1) * $perPage;
 
 page_header($setting["site_name"]);
@@ -35,7 +34,7 @@ page_header($setting["site_name"]);
 <a class="button" href="application.php">New application</a>
 </form>
 
-<p><?=$count?> applications<?php if (isset($_GET["tag"])) { ?> tagged <b><?=h($tag["name"] ?? "?")?></b> (<a href="<?=h(index_url(["tag" => null, "page" => null]))?>">all</a>)<?php } ?>.</p>
+<p><?=$count = $applications->count("*")?> applications<?php if (isset($_GET["tag"])) { ?> tagged <b><?=h($tag["name"] ?? "?")?></b> (<a href="<?=h(index_url(["tag" => null, "page" => null]))?>">all</a>)<?php } ?>.</p>
 
 <table>
 <thead><tr>

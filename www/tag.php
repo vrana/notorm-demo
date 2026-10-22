@@ -1,22 +1,21 @@
 <?php declare(strict_types=1);
 require __DIR__ . "/../include/bootstrap.inc.php";
 
-$id = $_GET["id"];
-$notice = "";
-if ($_POST) {
-	$notice = demo_write($db, $log, function () use ($db, $id) {
-		if (isset($_POST["delete"])) {
-			$deleted = $db->tag("id", $id)->delete(); // fails if an application has this tag
-			return "Deleted " . plural($deleted, "tag");
-		}
-		$updated = $db->tag("id", $id)->update(["name" => $_POST["name"]]);
-		return "Updated " . plural($updated, "tag");
-	});
-}
-
-$tag = $db->tag[$id];
+$tag = $db->tag[$_GET["id"]];
 if (!$tag) {
 	not_found($log, $cache);
+}
+
+$notice = "";
+if ($_POST) {
+	$notice = demo_write($db, $log, function () use ($tag) {
+		if (isset($_POST["delete"])) {
+			$deleted = $tag->delete(); // fails if an application has this tag
+			return "Deleted " . plural($deleted, "tag");
+		}
+		$updated = $tag->update(["name" => $_POST["name"]]); // the row keeps its values, the page shows them after the rollback
+		return "Updated " . plural($updated, "tag");
+	});
 }
 
 page_header($tag["name"], $notice);
