@@ -3,8 +3,8 @@ require __DIR__ . "/../include/bootstrap.inc.php";
 
 $notice = "";
 if ($_POST) {
-	$notice = demo_write($software, $log, function () use ($software) {
-		$tag = $software->tag()->insert(["name" => $_POST["name"]]);
+	$notice = demo_write($db, $log, function () use ($db) {
+		$tag = $db->tag()->insert(["name" => $_POST["name"]]);
 		return "Inserted tag $tag[id]";
 	});
 }
@@ -13,7 +13,7 @@ page_header("Tags", $notice);
 ?>
 <table>
 <thead><tr><th>Name<th class="number">Applications</thead>
-<?php foreach ($software->tag()->order("name") as $tag) { ?>
+<?php foreach ($db->tag()->order("name") as $tag) { ?>
 <tr>
 	<td data-label="Name"><?=a("tag.php?id=$tag[id]", $tag["name"])?>
 	<td data-label="Applications" class="number"><?=a("./?tag=$tag[id]", $tag->application_tag()->count("*"))?>

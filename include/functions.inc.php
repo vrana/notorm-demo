@@ -23,8 +23,8 @@ function cache_choice(): string {
 }
 
 /** JUSH language of the SQL dialect, build-jush.php builds these */
-function sql_language(PDO $connection): string {
-	return match ($connection->getAttribute(PDO::ATTR_DRIVER_NAME)) {
+function sql_language(PDO $pdo): string {
+	return match ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME)) {
 		"sqlite" => "sqlite",
 		"pgsql" => "pgsql",
 		"sqlsrv", "dblib", "mssql" => "mssql",
@@ -33,10 +33,10 @@ function sql_language(PDO $connection): string {
 	};
 }
 
-/** Database chosen by the visitor in the header, one of DBS: the names from config.php */
+/** Database chosen by the visitor in the header, one of DATABASES: the names from config.php */
 function db_choice(): string {
-	$choice = $_COOKIE["db"] ?? DBS[0]; // no cookie before the first switch
-	return (in_array($choice, DBS, true) ? $choice : DBS[0]); // e.g. a database which is no longer configured
+	$choice = $_COOKIE["db"] ?? DATABASES[0]; // no cookie before the first switch
+	return (in_array($choice, DATABASES, true) ? $choice : DATABASES[0]); // e.g. a database which is no longer configured
 }
 
 /** Milliseconds with two decimals */
@@ -67,15 +67,15 @@ function options(iterable $rows, string $column, mixed $selected): string {
 * @param callable(): string $write returns what was done, e.g. "Updated 1 row"
 * @return string HTML of the notice
 */
-function demo_write(NotORM\NotORM $software, QueryLog $log, callable $write): string {
+function demo_write(NotORM\NotORM $db, QueryLog $log, callable $write): string {
 	$from = $log->count();
-	$software->transaction = "BEGIN";
+	$db->transaction = "BEGIN";
 	try {
 		$return = "<p class='notice'>" . h($write()) . " in " . format_time($log->time($from)) . ". <b>This demo is read-only</b>, the change was rolled back.</p>\n";
 	} catch (PDOException $exception) {
 		$return = "<p class='notice error'>Error: " . h(rtrim($exception->getMessage(), ".")) . ".</p>\n";
 	} finally {
-		$software->transaction = "ROLLBACK";
+		$db->transaction = "ROLLBACK";
 	}
 	return $return;
 }

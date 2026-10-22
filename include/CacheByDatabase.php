@@ -5,16 +5,16 @@ class CacheByDatabase implements NotORM\Cache {
 
 	function __construct(
 		public NotORM\Cache $cache,
-		private string $db,
+		private string $database,
 	) {
 	}
 
 	function load(string $key): mixed {
-		return $this->cache->load("$this->db;$key");
+		return $this->cache->load("$this->database;$key");
 	}
 
 	function save(string $key, mixed $data): void {
-		$this->cache->save("$this->db;$key", $data);
+		$this->cache->save("$this->database;$key", $data);
 	}
 
 }

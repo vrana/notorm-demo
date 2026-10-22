@@ -12,17 +12,17 @@ if ($_POST) {
 		"slogan" => $_POST["slogan"],
 	];
 	$tags = array_map(fn($tag_id) => ["tag_id" => $tag_id], $_POST["tags"] ?? []); // no tags[] without a checked checkbox
-	$notice = demo_write($software, $log, function () use ($software, $id, $data, $tags) {
+	$notice = demo_write($db, $log, function () use ($db, $id, $data, $tags) {
 		if (isset($_POST["delete"])) {
-			$deleted = $software->application("id", $id)->delete(); // ON DELETE CASCADE deletes its application_tag rows
+			$deleted = $db->application("id", $id)->delete(); // ON DELETE CASCADE deletes its application_tag rows
 			return "Deleted " . plural($deleted, "application");
 		}
 		if (!$id) {
-			$application = $software->application()->insert($data);
+			$application = $db->application()->insert($data);
 			$application->application_tag()->insertMulti($tags);
 			return "Inserted application $application[id] and its tags";
 		}
-		$application = $software->application[$id];
+		$application = $db->application[$id];
 		$updated = $application->update($data);
 		$application->application_tag()->delete();
 		$application->application_tag()->insertMulti($tags);
@@ -33,7 +33,7 @@ if ($_POST) {
 $application = null;
 $tags = [];
 if ($id) {
-	$application = $software->application[$id];
+	$application = $db->application[$id];
 	if (!$application) {
 		not_found($log, $cache);
 	}
@@ -42,7 +42,7 @@ if ($id) {
 	}
 }
 
-$authors = $software->author()->order("name"); // used twice, queried once
+$authors = $db->author()->order("name"); // used twice, queried once
 $form = ($_POST ? $data : $application); // after a POST, show what was sent
 $checked = ($_POST ? array_flip($_POST["tags"] ?? []) : $tags);
 
@@ -76,7 +76,7 @@ if ($application) {
 	<select id="maintainer_id" name="maintainer_id"><option value=""></option><?=options($authors, "name", $form["maintainer_id"] ?? "")?></select>
 	<span>Tags</span>
 	<div class="tags">
-	<?php foreach ($software->tag()->order("name") as $tag) { ?>
+	<?php foreach ($db->tag()->order("name") as $tag) { ?>
 		<label><input type="checkbox" name="tags[]" value="<?=$tag["id"]?>"<?=(isset($checked[$tag["id"]]) ? " checked" : "")?>> <?=h($tag["name"])?></label>
 	<?php } ?>
 	</div>

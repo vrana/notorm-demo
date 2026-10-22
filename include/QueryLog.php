@@ -9,7 +9,7 @@ class QueryLog {
 
 	/** @param string $source URL of the code which caused a query with $file relative to www/ and $line */
 	function __construct(
-		private \PDO $connection,
+		private \PDO $pdo,
 		private string $source,
 	) {
 		$this->skip = [
@@ -73,7 +73,7 @@ class QueryLog {
 	/** Print the queries with the locations linked to the source */
 	function render(): void {
 		$www = dirname(__DIR__) . DIRECTORY_SEPARATOR . "www" . DIRECTORY_SEPARATOR;
-		$language = sql_language($this->connection);
+		$language = sql_language($this->pdo);
 		echo "<section class='log'>\n";
 		foreach ($this->entries as $i => $entry) {
 			$code = $this->statement($entry["file"], $entry["line"]);
@@ -184,7 +184,7 @@ class QueryLog {
 			$query
 		);
 		if ($parameters) {
-			$query .= "\n-- " . implode(", ", array_map(fn($val) => ($val === null ? "NULL" : (is_int($val) || is_float($val) ? (string) $val : $this->connection->quote((string) $val))), $parameters));
+			$query .= "\n-- " . implode(", ", array_map(fn($val) => ($val === null ? "NULL" : (is_int($val) || is_float($val) ? (string) $val : $this->pdo->quote((string) $val))), $parameters));
 		}
 		return $query;
 	}

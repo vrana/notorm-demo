@@ -2,7 +2,7 @@
 
 // Copy to config.php, which is not in the repository.
 return [
-	"dbs" => [ // name => [DSN, username, password], the visitors can switch between them, the first one is the default, php setup.php name creates the tables
+	"databases" => [ // name => [DSN, username, password], the visitors can switch between them, the first one is the default, php setup.php name creates the tables
 		"MySQL" => ["mysql:host=localhost;dbname=notorm_demo;charset=utf8mb4", "notorm_demo", ""],
 		//~ "PostgreSQL" => ["pgsql:host=localhost;dbname=notorm_demo", "notorm_demo", ""],
 		//~ "SQLite" => ["sqlite:" . sys_get_temp_dir() . "/notorm-demo.sqlite", "", ""], // the web server writes to the file and its directory
@@ -12,7 +12,7 @@ return [
 	"caches" => [ // class => constructor arguments or a function returning them called only for the chosen cache, the visitors can switch between them, the first one is the default
 		NotORM\Cache\File::class => [sys_get_temp_dir() . "/notorm-demo.dat"],
 		NotORM\Cache\IncludeFile::class => [sys_get_temp_dir() . "/notorm-demo.php"],
-		NotORM\Cache\Database::class => fn(PDO $connection) => [$connection], // the notorm table
+		NotORM\Cache\Database::class => fn(PDO $pdo) => [$pdo], // the notorm table
 		NotORM\Cache\Session::class => [],
 		//~ NotORM\Cache\APCu::class => [],
 		//~ NotORM\Cache\Memcache::class => fn() => [memcache_connect("localhost")],

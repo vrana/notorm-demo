@@ -7,7 +7,7 @@ page_header("Authors");
 
 <table>
 <thead><tr><th>Name<th>Web<th class="number">Authored<th class="number">Maintained</thead>
-<?php foreach ($software->author()->order("name") as $author) { ?>
+<?php foreach ($db->author()->order("name") as $author) { ?>
 <tr>
 	<td data-label="Name"><?=a("author.php?id=$author[id]", $author["name"])?>
 	<td data-label="Web"><?=a($author["web"], $author["web"])?>

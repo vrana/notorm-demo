@@ -3,7 +3,7 @@ require __DIR__ . "/../include/bootstrap.inc.php";
 
 $setting = $cache?->load("setting"); // null with the cache off or before the first visit
 if ($setting === null) {
-	$setting = iterator_to_array($software->setting()->fetch()); // an array, a Row can't be serialized
+	$setting = iterator_to_array($db->setting()->fetch()); // an array, a Row can't be serialized
 	$cache?->save("setting", $setting);
 }
 $perPage = (int) $setting["per_page"]; // PDO MySQL returns strings before PHP 8.1
@@ -12,13 +12,13 @@ $order = (isset($orders[$_GET["order"] ?? ""]) ? $_GET["order"] : "title"); // o
 $page = $_GET["page"] ?? 1;
 $search = $_GET["search"] ?? "";
 
-$applications = $software->application();
+$applications = $db->application();
 if ($search != "") {
 	$applications->where("title LIKE ? OR slogan LIKE ?", "%$search%", "%$search%");
 }
 $tag = null;
 if (isset($_GET["tag"])) {
-	$tag = $software->tag[$_GET["tag"]];
+	$tag = $db->tag[$_GET["tag"]];
 	$applications->where("application_tag:tag_id", $_GET["tag"]); // : joins the referencing table
 }
 $count = $applications->count("*");

@@ -29,31 +29,31 @@ if (isset($_POST["cache"])) {
 	exit;
 }
 
-/** @var array{dbs: non-empty-array<string, array{string, string, string}>, caches:non-empty-array<class-string<NotORM\Cache>|'', list<mixed>|Closure(PDO): list<mixed>>, source: string} $config */
+/** @var array{databases: non-empty-array<string, array{string, string, string}>, caches:non-empty-array<class-string<NotORM\Cache>|'', list<mixed>|Closure(PDO): list<mixed>>, source: string} $config */
 $config = require __DIR__ . "/../config.php";
 $caches = []; // short class name => [class, constructor arguments], "" is off
 foreach ($config["caches"] as $class => $arguments) {
 	$caches[substr((string) strrchr($class, "\\"), 1)] = [$class, $arguments]; // (string) - strrchr() returns false for ""
 }
 define("CACHES", array_keys($caches)); // read by cache_choice() and the switch in page_header()
-define("DBS", array_keys($config["dbs"])); // read by db_choice() and the switch in page_header()
-[$dsn, $username, $password] = $config["dbs"][db_choice()];
-$connection = new PDO($dsn, $username, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_CASE => PDO::CASE_LOWER]); // CASE_LOWER - Oracle returns the column names in upper case
-if ($connection->getAttribute(PDO::ATTR_DRIVER_NAME) == "sqlite") {
-	$connection->exec("PRAGMA foreign_keys = ON"); // off by default, the demo shows the errors and ON DELETE CASCADE
+define("DATABASES", array_keys($config["databases"])); // read by db_choice() and the switch in page_header()
+[$dsn, $username, $password] = $config["databases"][db_choice()];
+$pdo = new PDO($dsn, $username, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_CASE => PDO::CASE_LOWER]); // CASE_LOWER - Oracle returns the column names in upper case
+if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) == "sqlite") {
+	$pdo->exec("PRAGMA foreign_keys = ON"); // off by default, the demo shows the errors and ON DELETE CASCADE
 }
 [$class, $arguments] = $caches[cache_choice()];
 if ($arguments instanceof Closure) {
-	$arguments = $arguments($connection); // only for the chosen cache, e.g. a connection to Memcached
+	$arguments = $arguments($pdo); // only for the chosen cache, e.g. a connection to Memcached
 }
 $cache = ($class == "" ? null : new CacheByDatabase(new $class(...$arguments), db_choice()));
 if ($cache?->cache instanceof NotORM\Cache\Session) {
 	session_start();
 }
 
-$structure = new NotORM\Structure\Discovery($connection, $cache, "%s_id"); // $application->author reads author_id
-$software = new NotORM\NotORM($connection, $structure, $cache);
+$structure = new NotORM\Structure\Discovery($pdo, $cache, "%s_id"); // $application->author reads author_id
+$db = new NotORM\NotORM($pdo, $structure, $cache);
 
-$log = new QueryLog($connection, $config["source"]);
-$log->attach($software);
+$log = new QueryLog($pdo, $config["source"]);
+$log->attach($db);
 ob_start(); // page_footer() puts markers where the queries ran into the page

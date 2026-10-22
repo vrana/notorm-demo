@@ -14,5 +14,5 @@ function tree(iterable $categories): void {
 }
 
 page_header("Categories");
-tree($software->category("parent_id", null));
+tree($db->category("parent_id", null));
 page_footer($log, $cache);

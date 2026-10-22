@@ -8,23 +8,23 @@ if ($_POST) {
 		"name" => $_POST["name"],
 		"web" => $_POST["web"],
 	];
-	$notice = demo_write($software, $log, function () use ($software, $id, $data) {
+	$notice = demo_write($db, $log, function () use ($db, $id, $data) {
 		if (isset($_POST["delete"])) {
-			$deleted = $software->author("id", $id)->delete(); // fails if the author has applications
+			$deleted = $db->author("id", $id)->delete(); // fails if the author has applications
 			return "Deleted " . plural($deleted, "author");
 		}
 		if (!$id) {
-			$author = $software->author()->insert($data);
+			$author = $db->author()->insert($data);
 			return "Inserted author $author[id]";
 		}
-		$updated = $software->author("id", $id)->update($data);
+		$updated = $db->author("id", $id)->update($data);
 		return "Updated " . plural($updated, "author");
 	});
 }
 
 $author = null;
 if ($id) {
-	$author = $software->author[$id];
+	$author = $db->author[$id];
 	if (!$author) {
 		not_found($log, $cache);
 	}

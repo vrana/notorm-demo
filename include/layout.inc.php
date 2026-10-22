@@ -32,7 +32,7 @@ function page_header(string $title, string $notice = ""): void {
 </nav>
 <form class="switch" method="post">
 <label>Database <select name="db">
-<?php foreach (DBS as $value) { ?>
+<?php foreach (DATABASES as $value) { ?>
 <option<?=($value == db_choice() ? " selected" : "")?>><?=h($value)?></option>
 <?php } ?>
 </select></label>

@@ -4,17 +4,17 @@ require __DIR__ . "/../include/bootstrap.inc.php";
 $id = $_GET["id"];
 $notice = "";
 if ($_POST) {
-	$notice = demo_write($software, $log, function () use ($software, $id) {
+	$notice = demo_write($db, $log, function () use ($db, $id) {
 		if (isset($_POST["delete"])) {
-			$deleted = $software->tag("id", $id)->delete(); // fails if an application has this tag
+			$deleted = $db->tag("id", $id)->delete(); // fails if an application has this tag
 			return "Deleted " . plural($deleted, "tag");
 		}
-		$updated = $software->tag("id", $id)->update(["name" => $_POST["name"]]);
+		$updated = $db->tag("id", $id)->update(["name" => $_POST["name"]]);
 		return "Updated " . plural($updated, "tag");
 	});
 }
 
-$tag = $software->tag[$id];
+$tag = $db->tag[$id];
 if (!$tag) {
 	not_found($log, $cache);
 }

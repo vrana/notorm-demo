@@ -22,7 +22,7 @@ composer install
 cp config.example.php config.php
 ```
 
-Fill in the databases in `config.php`: `dbs` maps a name to the DSN, username and password. Visitors switch between them in the top right corner, the first one is the default. Then create the tables and the rows in each of them, here with an account that may create tables:
+Fill in the databases in `config.php`: `databases` maps a name to the DSN, username and password. Visitors switch between them in the top right corner, the first one is the default. Then create the tables and the rows in each of them, here with an account that may create tables:
 
 ```bash
 php setup.php MySQL root password
